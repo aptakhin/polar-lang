@@ -13,8 +13,8 @@ add_library(
         src/parser.cpp
         include/polar-lang/parser.h
         src/ast.cpp
-        scanner.cpp
-        include/polar-lang/scanner.h
+        lexer.cpp
+        include/polar-lang/lexer.h
 )
 target_link_libraries(
     polar-parser-lib
@@ -24,11 +24,17 @@ target_link_libraries(
 add_executable(
     polar-parser
         src/main.cpp
+        include/polar-lang/common.h)
+target_link_libraries(
+    polar-parser
+        polar-parser-lib
+        nlohmann_json::nlohmann_json
 )
 
 add_executable(
     polar-test
         tests/test_json.cpp
+        tests/test_lexer.cpp
 )
 
 target_link_libraries(
@@ -40,9 +46,9 @@ target_link_libraries(
 )
 
 add_custom_command(
-    OUTPUT scanner.cpp
-    DEPENDS include/polar-lang/scanner.rl
-    COMMAND ragel ${PROJECT_SOURCE_DIR}/include/polar-lang/scanner.rl
-        -o ${CMAKE_BINARY_DIR}/scanner.cpp
+    OUTPUT lexer.cpp
+    DEPENDS include/polar-lang/lexer.rl
+    COMMAND ragel ${PROJECT_SOURCE_DIR}/include/polar-lang/lexer.rl
+        -o ${CMAKE_BINARY_DIR}/lexer.cpp
     COMMENT "Ragel files"
 )

@@ -1,34 +1,15 @@
 #pragma once
 
-#include <string>
-#include <memory>
-#include <vector>
 #include <unordered_map>
 #include <iostream>
 
 #include <nlohmann/json.hpp>
 
+#include "polar-lang/common.h"
+
 namespace polar {
 
-using String = std::string;
 using json = nlohmann::json;
-
-template <class T>
-using U = std::unique_ptr<T>;
-
-template <class T, class... Args>
-inline U<T> Make_Unique(Args&&... args) {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-template <class T>
-class W {
-private:
-    T* ptr_;
-};
-
-template <class T>
-using Seq = std::vector<T>;
 
 enum class ENode {
     UNDEFINED,
@@ -107,15 +88,16 @@ enum class ETerm {
     UNDEFINED,
     INT,
     STRING,
+    KLEINE,
     MODULE,
     FUNC,
 };
-
 
 NLOHMANN_JSON_SERIALIZE_ENUM(ETerm, {
     {ETerm::UNDEFINED, "undefined"},
     {ETerm::INT, "int"},
     {ETerm::STRING, "string"},
+    {ETerm::KLEINE, "kleine"},
     {ETerm::MODULE, "module"},
     {ETerm::FUNC, "func"},
 })
@@ -211,8 +193,8 @@ public:
     const static ETerm TYPE = ETerm::STRING;
 
     StringTerm(String value)
-    :       Term(Self::TYPE),
-            value_(std::move(value)) {
+            :       Term(Self::TYPE),
+                    value_(std::move(value)) {
     }
 
     const String& value() const { return value_; }
@@ -223,6 +205,23 @@ public:
 
 private:
     const String value_;
+};
+
+class KleineTerm : public Term {
+public:
+    using Self = KleineTerm;
+
+    const static ETerm TYPE = ETerm::KLEINE;
+
+    KleineTerm()
+    :       Term(Self::TYPE) {
+    }
+
+    virtual KleineTerm* do_clone() const override;
+
+    json dump() const override;
+
+private:
 };
 
 class ModuleTerm : public Term {

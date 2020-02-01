@@ -1,35 +1,42 @@
-#include "polar-lang/scanner.h"
+#include "polar-lang/lexer.h"
+
+namespace polar {
 
 %%{
     machine Scanner;
     write data;
 }%%
 
-void scan_init( Scanner *s, FILE *file )
-{
-    memset (s, '\0', sizeof(Scanner));
+Lexer::Lexer() {
+    Lexer* s = this;
+    memset (s, '\0', sizeof(Lexer));
     s->curline = 1;
-    s->file = file;
     s->eof = 0;
     %% write init;
 }
 
-int scan( Scanner *s )
+void Lexer::load(std::istream& f)
 {
+    file = &f;
+}
+
+int Lexer::next_lexeme()
+{
+    Lexer* s = this;
 	int token = TK_NO_TOKEN;
 	int space, readlen;
 
-	while ( 1 ) {
-		if ( s->p == s->pe ) {
-			printf("scanner: need more data\n");
+	while (1) {
+		if (s->p == s->pe) {
+			// printf("scanner: need more data\n");
 
-			if ( s->ts == 0 )
+			if (s->ts == 0)
 				s->have = 0;
 			else {
 				/* There is data that needs to be shifted over. */
-				printf("scanner: buffer broken mid token\n");
+				// printf("scanner: buffer broken mid token\n");
 				s->have = s->pe - s->ts;
-				memmove( s->buf, s->ts, s->have );
+				memmove(s->buf, s->ts, s->have);
 				s->te -= (s->ts-s->buf);
 				s->ts = s->buf;
 			}
@@ -37,21 +44,23 @@ int scan( Scanner *s )
 			s->p = s->buf + s->have;
 			space = BUFSIZE - s->have;
 
-			if ( space == 0 ) {
+			if (space == 0) {
 				/* We filled up the buffer trying to scan a token. */
-				printf("scanner: out of buffer space\n");
+				// printf("scanner: out of buffer space\n");
 				return TK_ERR;
 			}
 
-			if ( s->done ) {
-				printf("scanner: end of file\n");
+			if (s->done) {
+				// printf("scanner: end of file\n");
 				s->p[0] = 0;
 				readlen = 1;
 			}
 			else {
-				readlen = fread( s->p, 1, space, s->file );
-				if ( readlen < space )
+				s->file->read(s->p, space);
+				readlen = s->file->gcount();
+				if (readlen < space) {
 					s->done = 1;
+			    }
 			}
 
 			s->pe = s->p + readlen;
@@ -65,6 +74,15 @@ int scan( Scanner *s )
 			variable eof s->eof;
 
 			main := |*
+
+            "$" =>
+                { ret_tok(TK_Rule); fbreak; };
+
+            "#" =>
+                { ret_tok(TK_Response); fbreak; };
+
+            "*" =>
+                { ret_tok(TK_Kleine ); fbreak; };
 
             "EVENT" =>
                 { ret_tok( TK_Event ); fbreak; };
@@ -108,3 +126,4 @@ int scan( Scanner *s )
 	}
 }
 
+} // namespace polar {

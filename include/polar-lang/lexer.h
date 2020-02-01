@@ -4,9 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <istream>
+
+#include "polar-lang/common.h"
+
 #define BUFSIZE 4096
 
-typedef struct _Scanner {
+namespace polar {
+
+struct Lexer {
     /* Scanner state. */
     int cs;
     int act;
@@ -17,7 +23,7 @@ typedef struct _Scanner {
     char *p;
     char *pe;
     char *eof;
-    FILE *file;
+    std::istream *file;
     int done;
 
     /* Token data */
@@ -26,9 +32,15 @@ typedef struct _Scanner {
     int value;
 
     char buf[BUFSIZE];
-} Scanner;
 
-void scan_init(Scanner *s, FILE *file);
+public:
+    Lexer();
+
+    void load(std::istream &file);
+
+    int next_lexeme();
+};
+
 
 #define TK_NO_TOKEN (-1)
 #define TK_ERR 128
@@ -38,8 +50,10 @@ void scan_init(Scanner *s, FILE *file);
 #define TK_String 132
 #define TK_Event 133
 #define TK_Endline 134
+#define TK_Rule 135
+#define TK_Response 136
+#define TK_Kleine 137
 
-#define ret_tok( _tok ) { token = _tok; s->data = s->ts; }
+#define ret_tok(_tok) { token = _tok; s->data = s->ts; }
 
-
-int scan(Scanner *s);
+} // namespace polar {

@@ -25,6 +25,14 @@ json StringTerm::dump() const {
     return value_;
 }
 
+KleineTerm* KleineTerm::do_clone() const {
+    return new KleineTerm{};
+}
+
+json KleineTerm::dump() const {
+    return "*";
+}
+
 ModuleTerm* ModuleTerm::do_clone() const {
     return new ModuleTerm{};
 }
