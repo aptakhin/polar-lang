@@ -4,6 +4,7 @@
 
 using namespace polar;
 
+/// Testing item
 struct Item {
     Item(String str, int type, int offset)
     :   str(std::move(str)),
@@ -16,6 +17,36 @@ struct Item {
     const int offset;
 };
 
+/// Helper for testing item
+::testing::AssertionResult test_item(const Lexer& lexer,
+        const std::vector<Item>& items, int tok, size_t item_counter) {
+    if (item_counter >= items.size()) {
+        throw std::runtime_error("Too few parse items!");
+    }
+
+    if (items[item_counter].type != tok) {
+        return ::testing::AssertionFailure() << "Expected: "
+            << items[item_counter].type << ". Got: " << tok
+            << ". Item: " << item_counter;
+    }
+
+    const auto lexer_offset = lexer.data - lexer.buf;
+    if (items[item_counter].offset != lexer.data - lexer.buf) {
+        return ::testing::AssertionFailure() << "Expected: "
+            << items[item_counter].type << ". Got: " << lexer_offset
+            << ". Item: " << item_counter;
+    }
+
+    const auto lexer_value = String(lexer.data, lexer.data + lexer.len);
+    if (items[item_counter].str != lexer_value) {
+        return ::testing::AssertionFailure() << "Expected: `"
+            << items[item_counter].str << "`. Got: `" << lexer_value << "`"
+            << ". Item: " << item_counter;
+    }
+
+    return ::testing::AssertionSuccess() << "Item ok";
+}
+
 TEST(Lexer, Lexems) {
     Lexer lexer;
 
@@ -23,8 +54,7 @@ TEST(Lexer, Lexems) {
     lexer.load(iss);
 
     const auto items = std::vector<Item>{
-        Item{"abc", TK_Identifier, 0},
-        Item{"123", TK_Number, 4},
+        Item{"abc 123 ", TK_String, 0},
         Item{"$", TK_Rule, 8},
         Item{"*", TK_Kleine, 10},
         Item{"#", TK_Response, 12},
@@ -41,15 +71,7 @@ TEST(Lexer, Lexems) {
         } else if (tok == TK_ERR) {
             throw std::runtime_error("Error in parsing");
         } else {
-            if (item_counter >= items.size()) {
-                throw std::runtime_error("Too few parse items!");
-            }
-            ASSERT_EQ(items[item_counter].type,
-                      tok);
-            ASSERT_EQ(items[item_counter].offset,
-                      lexer.data - lexer.buf);
-            ASSERT_EQ(items[item_counter].str,
-                    String(lexer.data, lexer.data + lexer.len));
+            EXPECT_TRUE(test_item(lexer, items, tok, item_counter));
             item_counter += 1;
         }
     }

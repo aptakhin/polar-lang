@@ -13,7 +13,7 @@
 namespace polar {
 
 struct Lexer {
-    /* Scanner state. */
+    /* Lexer state. */
     int cs;
     int act;
     int have;

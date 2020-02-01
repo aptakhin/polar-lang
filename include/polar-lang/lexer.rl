@@ -3,7 +3,7 @@
 namespace polar {
 
 %%{
-    machine Scanner;
+    machine Lexer;
     write data;
 }%%
 
@@ -67,7 +67,7 @@ int Lexer::next_lexeme()
 		}
 
 		%%{
-			machine Scanner;
+			machine Lexer;
 			access s->;
 			variable p s->p;
 			variable pe s->pe;
@@ -82,44 +82,33 @@ int Lexer::next_lexeme()
                 { ret_tok(TK_Response); fbreak; };
 
             "*" =>
-                { ret_tok(TK_Kleine ); fbreak; };
+                { ret_tok(TK_Kleine); fbreak; };
 
             "EVENT" =>
-                { ret_tok( TK_Event ); fbreak; };
+                { ret_tok(TK_Event); fbreak; };
 
-			# Identifiers
-			( [a-zA-Z_] [a-zA-Z0-9_]* ) =>
-				{ ret_tok( TK_Identifier ); fbreak; };
+			[\n] => { ret_tok(TK_Endline); fbreak; };
 
-			[\n] => { ret_tok( TK_Endline ); fbreak; };
+			[ \t]+;
 
-			# Whitespace
-			[ \t];
-
-			'"' ( [^\\"] | '\\' any ) * '"' =>
-				{ ret_tok( TK_String ); fbreak; };
-
-			# Number
-			digit+ =>
-				{ ret_tok( TK_Number ); fbreak; };
+			# Anything else
+			[a-zA-Z0-9 \t.,!?]+ =>
+				{ ret_tok(TK_String); fbreak; };
 
 			# EOF
 			0 =>
-				{ ret_tok( TK_EOF ); fbreak; };
-
-			# Anything else
-			any =>
-				{ ret_tok( *s->p ); fbreak; };
+				{ ret_tok(TK_EOF); fbreak; };
 
 			*|;
 
 			write exec;
 		}%%
 
-		if ( s->cs == Scanner_error )
+		if (s->cs == Lexer_error) {
 			return TK_ERR;
+		}
 
-		if ( token != TK_NO_TOKEN ) {
+		if (token != TK_NO_TOKEN) {
 			s->len = s->p - s->data;
 			return token;
 		}
