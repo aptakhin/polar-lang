@@ -18,6 +18,7 @@ public:
 private:
 
     UNode read_condition_rule();
+    UNode read_response();
 
     static bool is_term_tok(int tok);
 

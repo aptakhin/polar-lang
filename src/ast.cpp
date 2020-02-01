@@ -67,6 +67,17 @@ json RegexpRuleNode::dump() const {
     });
 }
 
+ResponseNode::ResponseNode(UNodeSeq&& args)
+:       Node(ResponseNode::TYPE),
+        args_(std::move(args)) {
+}
+
+json ResponseNode::dump() const {
+    return make_node({
+         {"args", to_json(args_)},
+    });
+}
+
 json to_json(const UNodeSeq& seq) {
     json args = json::array();
     for (const auto& a : seq) {

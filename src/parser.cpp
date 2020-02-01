@@ -21,6 +21,9 @@ void ParserState::load(std::istream& in) {
             if (tok == TK_Rule) {
                 auto node = read_condition_rule();
                 flow_.emplace_back(std::move(node));
+            } else if (tok == TK_Response) {
+                auto node = read_response();
+                flow_.emplace_back(std::move(node));
             }
         }
     }
@@ -44,6 +47,25 @@ UNode ParserState::read_condition_rule() {
     }
 
     auto rule = std::make_unique<RegexpRuleNode>(std::move(args));
+    return rule;
+}
+
+UNode ParserState::read_response() {
+    UNodeSeq args;
+
+    while (true) {
+        const auto tok = lexer_.next_lexeme();
+        if (tok == TK_EOF || tok == TK_Endline) {
+            break;
+        }
+
+        if (is_term_tok(tok)) {
+            auto term_node = make_term_node(tok);
+            args.push_back(std::move(term_node));
+        }
+    }
+
+    auto rule = std::make_unique<ResponseNode>(std::move(args));
     return rule;
 }
 

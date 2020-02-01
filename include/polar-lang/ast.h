@@ -17,6 +17,7 @@ enum class ENode {
     TERM,
     CALL_FUNC,
     REGEXP_RULE,
+    RESPONSE,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(ENode, {
@@ -25,6 +26,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ENode, {
     {ENode::TERM, "term"},
     {ENode::CALL_FUNC, "call_func"},
     {ENode::REGEXP_RULE, "regexp_rule"},
+    {ENode::REGEXP_RULE, "response"},
 })
 
 class Node {
@@ -42,6 +44,11 @@ public:
     virtual json dump() const { return json{}; }
 //
 //    virtual Node* do_clone() const = 0;
+
+    template <class T>
+    bool is() const {
+        return type() == T::TYPE;
+    }
 
     template <class T>
     T* as() {
@@ -115,6 +122,11 @@ public:
     virtual Term* do_clone() const = 0;
 
     virtual json dump() const { return json{}; }
+
+    template <class T>
+    bool is() const {
+        return type() == T::TYPE;
+    }
 
     template <class T>
     T* as() {
@@ -334,6 +346,20 @@ public:
     static const ENode TYPE = ENode::REGEXP_RULE;
 
     RegexpRuleNode(UNodeSeq&& args);
+
+    const UNodeSeq& args() const { return args_; }
+
+    json dump() const override;
+
+private:
+    UNodeSeq args_;
+};
+
+class ResponseNode : public Node {
+public:
+    static const ENode TYPE = ENode::RESPONSE;
+
+    ResponseNode(UNodeSeq&& args);
 
     const UNodeSeq& args() const { return args_; }
 
