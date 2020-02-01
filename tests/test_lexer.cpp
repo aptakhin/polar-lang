@@ -4,6 +4,41 @@
 
 using namespace polar;
 
+::testing::AssertionResult test_lexeme(const String& str, int is_tok) {
+    Lexer lexer;
+
+    std::istringstream iss(str);
+    lexer.load(iss);
+
+    bool got_it = false;
+    while (true) {
+        const auto tok = lexer.next_lexeme();
+        if (tok == TK_EOF) {
+            if (got_it) {
+                break;
+            }
+            return ::testing::AssertionFailure()
+                    << "For `" << str << "`. Early EOF!";
+        } else if (tok == TK_ERR) {
+            return ::testing::AssertionFailure()
+                    << "Error in parsing `" << str << "`";
+        } else {
+            if (got_it) {
+                return ::testing::AssertionFailure()
+                        << "For `" << str << "`. Too many lexems!";
+            }
+            if (tok != is_tok) {
+                return ::testing::AssertionFailure()
+                    << "For `" << str << "`. Expected: `" << is_tok
+                    << "> Got. " << tok;
+            }
+            got_it = true;
+        }
+    }
+
+    return ::testing::AssertionSuccess() << "Item ok";
+}
+
 /// Testing item
 struct Item {
     Item(String str, int type, int offset)
@@ -48,13 +83,24 @@ struct Item {
 }
 
 TEST(Lexer, Lexems) {
+    ASSERT_TRUE(test_lexeme("abc", TK_String));
+    ASSERT_TRUE(test_lexeme("по-русски", TK_String));
+    ASSERT_TRUE(test_lexeme("123", TK_String));
+    ASSERT_TRUE(test_lexeme("abc123", TK_String));
+    ASSERT_TRUE(test_lexeme("123abc", TK_String));
+
+    ASSERT_FALSE(test_lexeme("abc123кириллица EVENT", TK_String));
+}
+
+TEST(Lexer, Lexems2) {
     Lexer lexer;
 
     std::istringstream iss("abc 123 $ * #");
     lexer.load(iss);
 
     const auto items = std::vector<Item>{
-        Item{"abc 123 ", TK_String, 0},
+        Item{"abc", TK_String, 0},
+        Item{"123", TK_String, 4},
         Item{"$", TK_Rule, 8},
         Item{"*", TK_Kleine, 10},
         Item{"#", TK_Response, 12},

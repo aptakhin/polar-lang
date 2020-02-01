@@ -18,20 +18,20 @@ struct Lexer {
     int act;
     int have;
     int curline;
-    char *ts;
-    char *te;
-    char *p;
-    char *pe;
-    char *eof;
+    unsigned char *ts;
+    unsigned char *te;
+    unsigned char *p;
+    unsigned char *pe;
+    unsigned char *eof;
     std::istream *file;
     int done;
 
     /* Token data */
-    char *data;
+    unsigned char *data;
     int len;
     int value;
 
-    char buf[BUFSIZE];
+    unsigned char buf[BUFSIZE];
 
 public:
     Lexer();

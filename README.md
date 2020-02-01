@@ -14,3 +14,7 @@ Install ragel 6.10 http://www.colm.net
     
     brew tap sergeyli/homebrew-gtest
     brew install gtest
+    
+    
+    ragel -Vp include/polar-lang/lexer.rl | dot -Tpng -o outfile.png
+    
