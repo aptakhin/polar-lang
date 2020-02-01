@@ -13,7 +13,17 @@ public:
 
     void load(std::istream& in);
 
-protected:
+    const UNodeSeq& flow() { return flow_; }
+
+private:
+
+    UNode read_condition_rule();
+
+    static bool is_term_tok(int tok);
+
+    UNode make_term_node(int tok) const;
+
+private:
     UNodeSeq flow_;
 
     Lexer lexer_;

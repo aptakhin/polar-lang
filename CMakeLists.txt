@@ -35,8 +35,8 @@ add_executable(
     polar-test
         tests/test_json.cpp
         tests/test_lexer.cpp
+        tests/test_parser.cpp
 )
-
 target_link_libraries(
     polar-test
         polar-parser-lib
