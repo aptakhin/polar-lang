@@ -762,27 +762,6 @@ namespace polar {
     udigit = '0'..'9';
     ualnum = ualpha | udigit ;
 
-    action rule {
-       ret_tok(TK_Rule); fbreak;
-    }
-
-     action aa {
-           ret_tok(TK_Rule); fbreak;
-        }
-
-    rule_begin = (space* "$");
-
-    word = ^[ \t\n]+;
-
-    block = word;
-    whitespace = [ \t]+;
-    content = (block)+;
-
-    rule = rule_begin . content >aa @rule;
-
-    line = alnum+;
-
-    # main := line*;
     main := |*
         "$" =>
             { ret_tok(TK_Rule); fbreak; };
@@ -793,7 +772,7 @@ namespace polar {
         "*" =>
              { ret_tok(TK_Kleine); fbreak; };
 
-        "EVENT" =>
+        "event" =>
              { ret_tok(TK_Event); fbreak; };
 
         (ualpha | udigit | "-")+ =>
@@ -819,13 +798,15 @@ Lexer::Lexer() {
     %% write init;
 }
 
-void Lexer::load(std::istream& f)
-{
+void Lexer::load(std::istream& f) {
     file = &f;
 }
 
-int Lexer::next_lexeme()
-{
+String Lexer::lexeme_str() const {
+    return String{data, data + len};
+}
+
+int Lexer::next_lexeme() {
     Lexer* s = this;
 	int token = TK_NO_TOKEN;
 	int space, readlen;

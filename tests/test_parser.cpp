@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <polar-lang/ast.h>
 
+#include "polar-lang/ast.h"
 #include "polar-lang/parser.h"
 
 using namespace polar;
@@ -51,4 +51,22 @@ TEST(Parser, RegexpRuleKleine) {
 
     ASSERT_TRUE(regexp->args()[2]->is<TermNode>());
     ASSERT_TRUE(regexp->args()[2]->as<TermNode>()->term()->is<KleineTerm>());
+}
+
+TEST(Parser, RegexpRuleKleineMergeText) {
+    ParserState parser;
+
+    std::istringstream iss("$ abc def");
+    parser.load(iss);
+
+    const auto& flow = parser.flow();
+
+    ASSERT_EQ(flow.size(), 1);
+    ASSERT_EQ(flow[0]->type(), ENode::REGEXP_RULE);
+    const auto regexp = flow[0]->as<RegexpRuleNode>();
+    ASSERT_EQ(regexp->args().size(), 1);
+
+    ASSERT_TRUE(regexp->args()[0]->is<TermNode>());
+    ASSERT_TRUE(regexp->args()[0]->as<TermNode>()->term()->is<StringTerm>());
+    ASSERT_EQ(regexp->args()[0]->as<TermNode>()->term()->as<StringTerm>()->value(), "abc def");
 }

@@ -39,6 +39,8 @@ public:
     void load(std::istream &file);
 
     int next_lexeme();
+
+    String lexeme_str() const;
 };
 
 
