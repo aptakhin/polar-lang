@@ -4,8 +4,7 @@
 
 using namespace polar;
 
-int main (int argc, char** argv)
-{
+int main (int argc, char** argv) {
     ParserState parser;
     parser.load(std::cin);
 

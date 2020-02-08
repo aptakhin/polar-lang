@@ -55,6 +55,11 @@ public:
 #define TK_Rule 135
 #define TK_Response 136
 #define TK_Kleine 137
+#define TK_If 138
+#define TK_Eq 139
+#define TK_Neq 140
+#define TK_Get 141
+#define TK_Set 142
 
 #define ret_tok(_tok) { token = _tok; s->data = s->ts; }
 

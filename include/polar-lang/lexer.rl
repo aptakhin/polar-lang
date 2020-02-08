@@ -775,6 +775,21 @@ namespace polar {
         "event" =>
              { ret_tok(TK_Event); fbreak; };
 
+        "get" =>
+             { ret_tok(TK_Get); fbreak; };
+
+        "set" =>
+             { ret_tok(TK_Set); fbreak; };
+
+        "if" =>
+             { ret_tok(TK_If); fbreak; };
+
+        "=" =>
+             { ret_tok(TK_Eq); fbreak; };
+
+        "!=" =>
+             { ret_tok(TK_Neq); fbreak; };
+
         (ualpha | udigit | "-")+ =>
              { ret_tok(TK_String); fbreak; };
 

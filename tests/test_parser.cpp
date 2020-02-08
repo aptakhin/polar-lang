@@ -3,7 +3,10 @@
 #include "polar-lang/ast.h"
 #include "polar-lang/parser.h"
 
+#include "test_ast.h"
+
 using namespace polar;
+
 
 TEST(Parser, RegexpRule) {
     ParserState parser;
@@ -14,8 +17,13 @@ TEST(Parser, RegexpRule) {
     const auto& flow = parser.flow();
 
     ASSERT_EQ(flow.size(), 2);
-    ASSERT_EQ(flow[0]->type(), ENode::REGEXP_RULE);
-    const auto regexp = flow[0]->as<RegexpRuleNode>();
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+    const auto rule = flow[0]->as<RuleNode>();
+    ASSERT_EQ(rule->args().size(), 1);
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+
+    ASSERT_EQ(rule->args()[0]->type(), ENode::REGEXP_RULE);
+    const auto regexp = rule->args()[0]->as<RegexpRuleNode>();
     ASSERT_EQ(regexp->args().size(), 1);
     ASSERT_TRUE(regexp->args()[0]->is<TermNode>());
     ASSERT_TRUE(regexp->args()[0]->as<TermNode>()->term()->is<StringTerm>());
@@ -38,8 +46,13 @@ TEST(Parser, RegexpRuleKleine) {
     const auto& flow = parser.flow();
 
     ASSERT_EQ(flow.size(), 1);
-    ASSERT_EQ(flow[0]->type(), ENode::REGEXP_RULE);
-    const auto regexp = flow[0]->as<RegexpRuleNode>();
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+    const auto rule = flow[0]->as<RuleNode>();
+    ASSERT_EQ(rule->args().size(), 1);
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+
+    ASSERT_EQ(rule->args()[0]->type(), ENode::REGEXP_RULE);
+    const auto regexp = rule->args()[0]->as<RegexpRuleNode>();
     ASSERT_EQ(regexp->args().size(), 3);
 
     ASSERT_TRUE(regexp->args()[0]->is<TermNode>());
@@ -53,7 +66,7 @@ TEST(Parser, RegexpRuleKleine) {
     ASSERT_TRUE(regexp->args()[2]->as<TermNode>()->term()->is<KleineTerm>());
 }
 
-TEST(Parser, RegexpRuleKleineMergeText) {
+TEST(Parser, RegexpRuleMergeText) {
     ParserState parser;
 
     std::istringstream iss("$ abc def");
@@ -62,11 +75,74 @@ TEST(Parser, RegexpRuleKleineMergeText) {
     const auto& flow = parser.flow();
 
     ASSERT_EQ(flow.size(), 1);
-    ASSERT_EQ(flow[0]->type(), ENode::REGEXP_RULE);
-    const auto regexp = flow[0]->as<RegexpRuleNode>();
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+    const auto rule = flow[0]->as<RuleNode>();
+    ASSERT_EQ(rule->args().size(), 1);
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+
+    ASSERT_EQ(rule->args()[0]->type(), ENode::REGEXP_RULE);
+    const auto regexp = rule->args()[0]->as<RegexpRuleNode>();
     ASSERT_EQ(regexp->args().size(), 1);
 
     ASSERT_TRUE(regexp->args()[0]->is<TermNode>());
     ASSERT_TRUE(regexp->args()[0]->as<TermNode>()->term()->is<StringTerm>());
     ASSERT_EQ(regexp->args()[0]->as<TermNode>()->term()->as<StringTerm>()->value(), "abc def");
+}
+
+TEST(Parser, IfEvent) {
+    ParserState parser;
+
+    std::istringstream iss("$ if event abc = def");
+    parser.load(iss);
+
+    const auto& flow = parser.flow();
+
+    ASSERT_EQ(flow.size(), 1);
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+    const auto rule_ = flow[0]->as<RuleNode>();
+    ASSERT_EQ(rule_->args().size(), 1);
+
+    ASSERT_TRUE(rule_->args()[0]->is<CallFuncNode>());
+    const auto if_cond = rule_->args()[0]->as<CallFuncNode>();
+    ASSERT_TRUE(ensure_term_string("=", if_cond->args()[0]));
+    ASSERT_TRUE(ensure_call_event_get("abc", if_cond->args()[1]));
+    ASSERT_TRUE(ensure_term_string("def", if_cond->args()[2]));
+}
+
+
+TEST(Parser, IfContext) {
+    ParserState parser;
+
+    std::istringstream iss("$ if get abc = def");
+    parser.load(iss);
+
+    const auto& flow = parser.flow();
+
+    ASSERT_EQ(flow.size(), 1);
+    ASSERT_EQ(flow[0]->type(), ENode::RULE);
+    const auto rule_ = flow[0]->as<RuleNode>();
+    ASSERT_EQ(rule_->args().size(), 1);
+
+    ASSERT_TRUE(rule_->args()[0]->is<CallFuncNode>());
+    const auto if_cond = rule_->args()[0]->as<CallFuncNode>();
+    ASSERT_TRUE(ensure_term_string("=", if_cond->args()[0]));
+    ASSERT_TRUE(ensure_call_context_get("abc", if_cond->args()[1]));
+    ASSERT_TRUE(ensure_term_string("def", if_cond->args()[2]));
+}
+
+TEST(Parser, ContextSet) {
+    ParserState parser;
+
+    std::istringstream iss("# set abc def");
+    parser.load(iss);
+
+    const auto& flow = parser.flow();
+
+    ASSERT_EQ(flow.size(), 1);
+    ASSERT_EQ(flow[0]->type(), ENode::RESPONSE);
+    const auto response = flow[0]->as<ResponseNode>();
+    ASSERT_EQ(response->args().size(), 1);
+
+    ASSERT_EQ(response->args()[0]->type(), ENode::CALL_FUNC);
+    ASSERT_TRUE(ensure_call_context_set("abc", response->args()[0]));
 }

@@ -44,16 +44,15 @@ json TermNode::dump() const {
     });
 }
 
-CallFuncNode::CallFuncNode(String name, Seq<UNode> args)
+CallFuncNode::CallFuncNode(UNodeSeq&& args)
 :       Node(CallFuncNode::TYPE),
-        name_(std::move(name)),
         args_(std::move(args)) {
 }
 
-CallFuncNode::CallFuncNode(UTerm term, Seq<UNode> args)
-:       Node(CallFuncNode::TYPE),
-        term_(std::move(term)),
-        args_(std::move(args)) {
+json CallFuncNode::dump() const {
+    return make_node({
+        {"args", to_json(args_)},
+    });
 }
 
 RegexpRuleNode::RegexpRuleNode(UNodeSeq&& args)
@@ -67,6 +66,17 @@ json RegexpRuleNode::dump() const {
     });
 }
 
+RuleNode::RuleNode(UNodeSeq&& args)
+:       Node(RuleNode::TYPE),
+        args_(std::move(args)) {
+}
+
+json RuleNode::dump() const {
+    return make_node({
+        {"args", to_json(args_)},
+    });
+}
+
 ResponseNode::ResponseNode(UNodeSeq&& args)
 :       Node(ResponseNode::TYPE),
         args_(std::move(args)) {
@@ -75,6 +85,17 @@ ResponseNode::ResponseNode(UNodeSeq&& args)
 json ResponseNode::dump() const {
     return make_node({
          {"args", to_json(args_)},
+    });
+}
+
+IfNode::IfNode(UNodeSeq&& args)
+:       Node(IfNode::TYPE),
+        args_(std::move(args)) {
+}
+
+json IfNode::dump() const {
+    return make_node({
+        {"args", to_json(args_)},
     });
 }
 

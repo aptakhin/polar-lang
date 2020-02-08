@@ -15,7 +15,7 @@ add_library(
         src/ast.cpp
         lexer.cpp
         include/polar-lang/lexer.h
-)
+        src/buf.cpp include/polar-lang/buf.h tests/test_ast.cpp tests/test_ast.h)
 target_link_libraries(
     polar-parser-lib
         nlohmann_json::nlohmann_json

@@ -17,7 +17,9 @@ enum class ENode {
     TERM,
     CALL_FUNC,
     REGEXP_RULE,
+    RULE,
     RESPONSE,
+    IF,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(ENode, {
@@ -26,7 +28,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ENode, {
     {ENode::TERM, "term"},
     {ENode::CALL_FUNC, "call_func"},
     {ENode::REGEXP_RULE, "regexp_rule"},
-    {ENode::REGEXP_RULE, "response"},
+    {ENode::RULE, "rule"},
+    {ENode::RESPONSE, "response"},
+    {ENode::IF, "if"},
 })
 
 class Node {
@@ -54,6 +58,7 @@ public:
     T* as() {
         if (type() != T::TYPE) {
             std::cerr << "ERROR casting" << std::endl;
+            throw std::runtime_error("Error casting!");
         }
         return static_cast<T*>(this);
     }
@@ -62,6 +67,7 @@ public:
     const T* as() const {
         if (type() != T::TYPE) {
             std::cerr << "ERROR casting" << std::endl;
+            throw std::runtime_error("Error casting!");
         }
         return static_cast<const T*>(this);
     }
@@ -70,6 +76,7 @@ public:
     static T* as(U<Node>& holder) {
         if (holder->type() != T::TYPE) {
             std::cerr << "ERROR casting" << std::endl;
+            throw std::runtime_error("Error casting!");
         }
         return static_cast<T*>(holder.get());
     }
@@ -79,6 +86,7 @@ public:
         if (holder->type() != T::TYPE) {
             // ERROR!!
             std::cerr << "ERROR casting" << std::endl;
+            throw std::runtime_error("Error casting!");
         }
         return static_cast<const T*>(holder.get());
     }
@@ -133,6 +141,7 @@ public:
         if (type() != T::TYPE) {
             // ERROR!!
             std::cerr << "ERROR casting" << std::endl;
+            throw std::runtime_error("Error casting!");
         }
         return static_cast<T*>(this);
     }
@@ -142,6 +151,7 @@ public:
         if (type() != T::TYPE) {
             // ERROR!!
             std::cerr << "ERROR casting" << std::endl;
+            throw std::runtime_error("Error casting!");
         }
         return static_cast<const T*>(this);
     }
@@ -328,16 +338,17 @@ class CallFuncNode : public Node {
 public:
     static const ENode TYPE = ENode::CALL_FUNC;
 
-    CallFuncNode(String name, UNodeSeq args);
-    CallFuncNode(UTerm term, UNodeSeq args);
+    CallFuncNode(UNodeSeq&& args);
 
-    const String& name() const { return name_; }
-    const Term* term() const { return term_.get(); }
+//    const String& name() const { return name_; }
+//    const Term* term() const { return term_.get(); }
     const UNodeSeq& args() const { return args_; }
 
+    json dump() const override;
+
 private:
-    String name_;
-    UTerm term_;
+//    String name_;
+//    UTerm term_;
     UNodeSeq args_;
 };
 
@@ -355,11 +366,39 @@ private:
     UNodeSeq args_;
 };
 
+class RuleNode : public Node {
+public:
+    static const ENode TYPE = ENode::RULE;
+
+    RuleNode(UNodeSeq&& args);
+
+    const UNodeSeq& args() const { return args_; }
+
+    json dump() const override;
+
+private:
+    UNodeSeq args_;
+};
+
 class ResponseNode : public Node {
 public:
     static const ENode TYPE = ENode::RESPONSE;
 
     ResponseNode(UNodeSeq&& args);
+
+    const UNodeSeq& args() const { return args_; }
+
+    json dump() const override;
+
+private:
+    UNodeSeq args_;
+};
+
+class IfNode : public Node {
+public:
+    static const ENode TYPE = ENode::IF;
+
+    IfNode(UNodeSeq&& args);
 
     const UNodeSeq& args() const { return args_; }
 

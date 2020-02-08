@@ -4,6 +4,7 @@
 
 #include "polar-lang/ast.h"
 #include "polar-lang/lexer.h"
+#include "polar-lang/buf.h"
 
 namespace polar {
 
@@ -24,16 +25,24 @@ private:
 
     static bool is_term_tok(int tok);
 
-    UNode make_term_node(int tok) const;
+    UNode make_term_node(const Lexeme& lexeme) const;
 
     UNode make_string_node(String str) const;
 
 private:
     UNodeSeq flow_;
 
-    Lexer lexer_;
+    LexerBuffer lexer_buf_;
 
+    UNode read_if();
 
+    UNode read_if_impl();
+
+    UNode make_event_get(String event);
+
+    UNode make_context_get(String context);
+
+    UNode read_set();
 };
 
 } // namespace polar {
