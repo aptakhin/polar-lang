@@ -247,7 +247,7 @@ UNode ParserState::read_if() {
 UNode ParserState::make_event_get(String event) {
     UNode init[] = {
         make_string_node("polar.get_event"),
-        make_string_node(event),
+        make_string_node(std::move(event)),
     };
     UNodeSeq call_args{std::make_move_iterator(std::begin(init)),
                        std::make_move_iterator(std::end(init))};
@@ -261,7 +261,7 @@ UNode ParserState::make_event_get(String event) {
 UNode ParserState::make_context_get(String context) {
     UNode init[] = {
         make_string_node("polar.get_context"),
-        make_string_node(context),
+        make_string_node(std::move(context)),
     };
     UNodeSeq call_args{std::make_move_iterator(std::begin(init)),
                        std::make_move_iterator(std::end(init))};
