@@ -128,6 +128,8 @@ TEST(Parser, IfContext) {
     ASSERT_TRUE(ensure_term_string("=", if_cond->args()[0]));
     ASSERT_TRUE(ensure_call_context_get("abc", if_cond->args()[1]));
     ASSERT_TRUE(ensure_term_string("def", if_cond->args()[2]));
+
+    std::cout << to_json(parser).dump(4) << std::endl;
 }
 
 TEST(Parser, ContextSet) {
@@ -145,4 +147,22 @@ TEST(Parser, ContextSet) {
 
     ASSERT_EQ(response->args()[0]->type(), ENode::CALL_FUNC);
     ASSERT_TRUE(ensure_call_context_set("abc", response->args()[0]));
+
+    std::cout << to_json(parser).dump(4) << std::endl;
+}
+
+
+TEST(Parser, StarFail) {
+    ParserState parser;
+
+    std::istringstream iss("$ *\n"
+                           "# Don't underestimate\n"
+                           "# Pity not to understand\n\n");
+    parser.load(iss);
+
+    const auto& flow = parser.flow();
+
+    ASSERT_EQ(flow.size(), 3);
+    std::cout << to_json(parser).dump(4) << std::endl;
+    int p = 0;
 }

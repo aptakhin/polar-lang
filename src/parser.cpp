@@ -45,9 +45,11 @@ void ParserState::load(std::istream& in) {
                     auto node = read_response();
                     flow_.emplace_back(std::move(node));
                 }
+            } else if (lexeme.tok == TK_Endline) {
+                continue;
             } else {
-                throw std::runtime_error("Invalid parser state at" +
-                    std::to_string(lexeme.tok));
+                throw std::runtime_error("Invalid parser state at " +
+                std::to_string(lexeme.tok));
             }
         }
     }
@@ -301,5 +303,11 @@ UNode ParserState::read_set() {
     return cmd;
 }
 
+json to_json(const ParserState& state) {
+    return json({
+        {"node", "flow"},
+        {"flow", to_json(state.flow())},
+    });
+}
 
 } // namespace polar {

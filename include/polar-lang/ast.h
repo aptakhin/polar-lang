@@ -26,7 +26,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ENode, {
     {ENode::UNDEFINED, "undefined"},
     {ENode::NAME, "name"},
     {ENode::TERM, "term"},
-    {ENode::CALL_FUNC, "call_func"},
+    {ENode::CALL_FUNC, "call"},
     {ENode::REGEXP_RULE, "regexp_rule"},
     {ENode::RULE, "rule"},
     {ENode::RESPONSE, "response"},

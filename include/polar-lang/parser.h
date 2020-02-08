@@ -14,11 +14,12 @@ public:
 
     void load(std::istream& in);
 
-    const UNodeSeq& flow() { return flow_; }
+    const UNodeSeq& flow() const { return flow_; }
 
 private:
 
     UNode read_condition_rule();
+
     UNode read_response();
 
     UNodeSeq read_line();
@@ -44,6 +45,8 @@ private:
 
     UNode read_set();
 };
+
+json to_json(const ParserState& state);
 
 } // namespace polar {
 

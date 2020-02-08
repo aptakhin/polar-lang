@@ -790,7 +790,7 @@ namespace polar {
         "!=" =>
              { ret_tok(TK_Neq); fbreak; };
 
-        (ualpha | udigit | "-")+ =>
+        (ualpha | udigit | "-" | "'" | ":")+ =>
              { ret_tok(TK_String); fbreak; };
 
         "\n" => { ret_tok(TK_Endline); fbreak; };

@@ -88,6 +88,7 @@ TEST(Lexer, Lexems) {
     ASSERT_TRUE(test_lexeme("123", TK_String));
     ASSERT_TRUE(test_lexeme("abc123", TK_String));
     ASSERT_TRUE(test_lexeme("123abc", TK_String));
+    ASSERT_TRUE(test_lexeme("abc'def", TK_String));
 
     ASSERT_FALSE(test_lexeme("abc123кириллица EVENT", TK_String));
 }
@@ -101,9 +102,9 @@ TEST(Lexer, Lexems2) {
     const auto items = std::vector<Item>{
         Item{"abc", TK_String, 0},
         Item{"123", TK_String, 4},
-        Item{"$", TK_Rule, 8},
-        Item{"*", TK_Kleine, 10},
-        Item{"#", TK_Response, 12},
+        Item{"$",   TK_Rule, 8},
+        Item{"*",   TK_Kleine, 10},
+        Item{"#",   TK_Response, 12},
     };
     size_t item_counter = 0;
 
